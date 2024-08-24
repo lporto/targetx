@@ -4,7 +4,7 @@ services:
       context: ./client
       dockerfile: Dockerfile
     ports:
-      - "3000:80"
+      - "8080:80"
     depends_on:
       - backend
 
@@ -12,8 +12,6 @@ services:
     build:
       context: ./server
       dockerfile: Dockerfile
-    ports:
-      - "5000:5000"
     environment:
       - MONGO_USERNAME=${MONGO_USERNAME}
       - MONGO_PASSWORD=${MONGO_PASSWORD}
