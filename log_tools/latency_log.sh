@@ -1,15 +1,8 @@
-# MongoDB connection details
-MONGO_URI="mongodb+srv://example.mongodb.net/"
-DATABASE="exampledb"
-COLLECTION="examplecollection"
-USERNAME="user"
-PASSWORD="pass"
+# Source the api_utils.sh script
+source ./api_utils.sh
 
-# Function to insert data into MongoDB using mongosh
-insert_to_mongo() {
-    local json_data=$1
-    mongosh "$MONGO_URI" --quiet --username $USERNAME --password $PASSWORD --eval "use $DATABASE;" --eval "db.$COLLECTION.insertOne($json_data)" 
-}
+NETWORK_INTERFACE="rmnet0"
+DESTINATION="8.8.8.8"
 
 # Function to run ping test and log results to MongoDB and console
 run_ping_test() {
@@ -22,8 +15,8 @@ run_ping_test() {
             timestamp=$(date +%s%N)
             log_data="{\"timestamp\": $timestamp, \"event\": \"latency\", \"value\": \"$latency ms\"}"
             
-            # Log to MongoDB
-#            insert_to_mongo "$log_data"
+            # Log to API
+            log_data "$log_data"
             
             # Show event on console
             echo "Latency: $latency ms"
@@ -31,8 +24,4 @@ run_ping_test() {
     done
 }
 
-# Example usage
-NETWORK_INTERFACE="rmnet0"
-DESTINATION="8.8.8.8"
 run_ping_test
-

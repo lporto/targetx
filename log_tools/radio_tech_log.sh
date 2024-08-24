@@ -1,15 +1,5 @@
-# MongoDB connection details
-MONGO_URI="mongodb+srv://example.mongodb.net/"
-DATABASE="exampledb"
-COLLECTION="examplecollection"
-USERNAME="user"
-PASSWORD="pass"
-
-# Function to insert data into MongoDB using mongosh
-insert_to_mongo() {
-    local json_data=$1
-    mongosh "$MONGO_URI" --quiet --username $USERNAME --password $PASSWORD --eval "use $DATABASE;" --eval "db.$COLLECTION.insertOne($json_data)" 
-}
+# Source the api_utils.sh script
+source ./api_utils.sh
 
 # Function to monitor data radio technology changes and log results to MongoDB and console
 monitor_radio_tech() {
@@ -39,7 +29,9 @@ monitor_radio_tech() {
 		
 		# Remove newline characters from log_data
 		log_data=$(echo "$log_data" | sed ':a;N;$!ba;s/\n//g')
-		#insert_to_mongo "$log_data"
+
+		# Log to API
+		log_data "$log_data"
 	fi
     done
 }

@@ -95,6 +95,21 @@ app.get('/api/datapoints/:collection', auth, async (req, res) => {
     }
 });
 
+// Post a new data point to a specified collection
+app.post('/api/datapoints/:collection', auth, async (req, res) => {
+  const collectionName = req.params.collection;
+  const dataPoint = req.body;
+
+  try {
+    const result = await client.db(mongoDBName).collection(collectionName).insertOne(dataPoint);
+    res.status(201).json({ msg: 'Data point inserted successfully', result });
+  } catch (error) {
+    console.error('Error inserting data point', error);
+    res.status(500).json({ error: 'Error inserting data point' });
+  }
+});
+
+
 // Start the server
 app.listen(port, () => {
   console.log(`Server is running on http://localhost:${port}`);

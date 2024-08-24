@@ -1,16 +1,5 @@
-# MongoDB connection details
-MONGO_URI="mongodb+srv://example.mongodb.net/"
-DATABASE="exampledb"
-COLLECTION="examplecollection"
-USERNAME="user"
-PASSWORD="pass"
-
-# Function to insert data into MongoDB using mongosh
-insert_to_mongo() {
-    local json_data=$1
-    mongosh "$MONGO_URI" --quiet --username $USERNAME --password $PASSWORD --eval "use $DATABASE;" --eval "db.$COLLECTION.insertOne($json_data)" 
-}
-
+# Source the api_utils.sh script
+source ./api_utils.sh
 
 # Variables
 #IPERF_SERVER="vin.proof.ovh.us"  # Replace with your iperf3 server IP or hostname
@@ -39,8 +28,8 @@ run_iperf3_test() {
                 timestamp=$(date +%s%N)
                 log_data="{\"timestamp\": $timestamp, \"event\": \"bandwidth\", \"value\": \"$bandwidth_value\"}"
 
-                # Log to MongoDB
-#                insert_to_mongo "$log_data"
+                # Log to API
+                log_data "$log_data"
 
                 # Show event on console
                 echo "Bandwidth: $bandwidth_value"

@@ -7,7 +7,7 @@ import './DataDashboard.css';
 
 const DataDashboard = () => {
   const [collections, setCollections] = useState([]);
-  const [selectedCollection, setSelectedCollection] = useState('examplecollection');
+  const [selectedCollection, setSelectedCollection] = useState('sparta0');
   const [dataPoints, setDataPoints] = useState([]);
   const [error, setError] = useState('');
 
@@ -15,7 +15,7 @@ const DataDashboard = () => {
     const fetchCollections = async () => {
       try {
         const token = localStorage.getItem('token');
-        const response = await axios.get('http://localhost:5000/api/collections', {
+        const response = await axios.get('/api/collections', {
             headers: {
                 'Authorization': `Bearer ${token}`
             }
