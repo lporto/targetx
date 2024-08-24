@@ -14,21 +14,25 @@ insert_to_mongo() {
 
 # Function to monitor 4G network state changes using adb logcat with radio logs
 monitor_radio_state() {
-    echo -e "${YELLOW}Monitoring radio state...${RESET}"
-    adb logcat -c  # Clear the logcat buffer
-    adb logcat -v time -T 1 -b radio | while IFS= read -r line; do
-        if echo "$line" | grep -q "getDataConnectionState apnType=default ret=DISCONNECTED"; then
-	    timestamp=$(date +%s%N)
-            log_data="{\"timestamp\": $timestamp, \"event\": \"data conn\", \"value\": \"disconnected\"}"
-            echo -e "${RED}Data disconnect detected.${RESET}"
-            connected_reported=false
-        elif echo "$line" | grep -q "getDataConnectionState apnType=default ret=CONNECTED"; then
+    clear
+    echo "Monitoring radio state..."
+    logcat -c  # Clear the logcat buffer
+    # Initialize the connection state assuming its connected
+    connected_reported=true
+    stdbuf -oL logcat -v time -T 1 -b radio | while IFS= read -r line; do
+        if echo "$line" | grep -q "DataRegState=1"; then
+            if [ "$connected_reported" = true ]; then
+	        timestamp=$(date +%s%N)
+	        log_data="{\"timestamp\": $timestamp, \"event\": \"data conn\", \"value\": \"disconnected\"}"
+	        echo "Data disconnect detected."
+	        connected_reported=false
+	    fi
+        elif echo "$line" | grep -q "DataRegState=0"; then
             if [ "$connected_reported" = false ]; then
 	    	timestamp=$(date +%s%N)
             	log_data="{\"timestamp\": $timestamp, \"event\": \"data conn\", \"value\": \"connected\"}"
-                echo -e "${GREEN}Data reconnected detected.${RESET}"
+                echo "Data reconnected detected."
                 connected_reported=true
-                return
             fi
         fi
     done

@@ -13,7 +13,8 @@ insert_to_mongo() {
 
 # Function to run ping test and log results to MongoDB and console
 run_ping_test() {
-    echo -e "${BLUE}Running Ping Test...${RESET}"
+    clear
+    echo "Running Ping Test..."
     ping -I $NETWORK_INTERFACE -c 120 $DESTINATION | while IFS= read -r line; do
         if echo "$line" | grep -q "time="; then
             # Extract the latency value
@@ -22,16 +23,16 @@ run_ping_test() {
             log_data="{\"timestamp\": $timestamp, \"event\": \"latency\", \"value\": \"$latency ms\"}"
             
             # Log to MongoDB
-            insert_to_mongo "$log_data"
+#            insert_to_mongo "$log_data"
             
             # Show event on console
-            echo -e "${GREEN}Latency: $latency ms${RESET}"
+            echo "Latency: $latency ms"
         fi
     done
 }
 
 # Example usage
-NETWORK_INTERFACE="enx0e3b0b3c40d0"
+NETWORK_INTERFACE="rmnet0"
 DESTINATION="8.8.8.8"
 run_ping_test
 
