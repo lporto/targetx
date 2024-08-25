@@ -14,6 +14,8 @@ monitor_radio_state() {
                 log_data="{\"timestamp\": $timestamp, \"event\": \"data_conn\", \"value\": \"disconnected\"}"
                 echo "Data disconnect detected."
                 connected_reported=false
+                # Log to API
+                log_data "$log_data"
 	        fi
         elif echo "$line" | grep -q "DataRegState=0"; then
             if [ "$connected_reported" = false ]; then
@@ -21,10 +23,10 @@ monitor_radio_state() {
             	log_data="{\"timestamp\": $timestamp, \"event\": \"data_conn\", \"value\": \"connected\"}"
                 echo "Data reconnected detected."
                 connected_reported=true
+                # Log to API
+                log_data "$log_data"
             fi
         fi
-        # Log to API
-        log_data "$log_data"
     done
 }
 

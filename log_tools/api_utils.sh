@@ -26,6 +26,14 @@ get_jwt_token() {
     fi
 }
 
+# Load environment variables
+load_env
+
+# Set collection from the first command-line argument, if provided
+if [ -n "$1" ]; then
+    COLLECTION="$1"
+fi
+
 # Function to log data to the API
 log_data() {
     local data="$1"
@@ -41,9 +49,6 @@ log_data() {
         echo "Error posting data point: $response"
     fi
 }
-
-# Load environment variables
-load_env
 
 # Obtain JWT Token
 get_jwt_token

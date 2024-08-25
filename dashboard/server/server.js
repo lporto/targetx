@@ -99,15 +99,20 @@ wss.on('connection', (ws) => {
 // Optimized Broadcast function
 const broadcast = (collectionName, data) => {
   const clients = subscriptions.get(collectionName);
-  console.log(`Broadcasting data to ${clients.size} clients for collection ${collectionName}`);
-  if (clients) {
-    clients.forEach(client => {
-      if (client.readyState === WebSocket.OPEN) {
-        client.send(JSON.stringify(data));
-        console.log('Data broadcasted:', data);
-      }
-    });
+
+  if (!clients || clients.size === 0) {
+    console.log(`No clients to broadcast to for collection ${collectionName}`);
+    return;
   }
+
+  console.log(`Broadcasting data to ${clients.size} clients for collection ${collectionName}`);
+
+  clients.forEach(client => {
+    if (client.readyState === WebSocket.OPEN) {
+      client.send(JSON.stringify(data));
+      console.log('Data broadcasted:', data);
+    }
+  });
 };
 
 // Middleware to verify JWT
@@ -175,7 +180,10 @@ app.post('/api/datapoints/:collection', auth, async (req, res) => {
     broadcast(collectionName, dataPoint);
   } catch (error) {
     console.error('Error inserting data point', error);
-    res.status(500).json({ error: 'Error inserting data point' });
+    // Send the error response only if headers haven't been sent yet
+    if (!res.headersSent) {
+      res.status(500).json({ error: 'Error inserting data point' });
+    }
   }
 });
 
