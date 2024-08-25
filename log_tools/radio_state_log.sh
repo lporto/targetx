@@ -3,7 +3,6 @@ source ./api_utils.sh
 
 # Function to monitor 4G network state changes using adb logcat with radio logs
 monitor_radio_state() {
-    clear
     echo "Monitoring radio state..."
     logcat -c  # Clear the logcat buffer
     # Initialize the connection state assuming its connected
@@ -12,14 +11,14 @@ monitor_radio_state() {
         if echo "$line" | grep -q "DataRegState=1"; then
             if [ "$connected_reported" = true ]; then
                 timestamp=$(date +%s%N)
-                log_data="{\"timestamp\": $timestamp, \"event\": \"data conn\", \"value\": \"disconnected\"}"
+                log_data="{\"timestamp\": $timestamp, \"event\": \"data_conn\", \"value\": \"disconnected\"}"
                 echo "Data disconnect detected."
                 connected_reported=false
 	        fi
         elif echo "$line" | grep -q "DataRegState=0"; then
             if [ "$connected_reported" = false ]; then
 	        	timestamp=$(date +%s%N)
-            	log_data="{\"timestamp\": $timestamp, \"event\": \"data conn\", \"value\": \"connected\"}"
+            	log_data="{\"timestamp\": $timestamp, \"event\": \"data_conn\", \"value\": \"connected\"}"
                 echo "Data reconnected detected."
                 connected_reported=true
             fi

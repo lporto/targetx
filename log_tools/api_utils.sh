@@ -20,12 +20,10 @@ get_jwt_token() {
     # Extract the token from the response
     jwt_token=$(echo $response | jq -r '.token')
 
-    if [ "$jwt_token" == "null" ]; then
+    if [ "$jwt_token" == "" ]; then
         echo "Error: Could not obtain JWT token. Please check your credentials."
         exit 1
     fi
-
-    echo "Obtained JWT token: $jwt_token"
 }
 
 # Function to log data to the API

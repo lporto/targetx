@@ -4,6 +4,7 @@ const { MongoClient } = require('mongodb');
 const cors = require('cors');
 const jwt = require('jsonwebtoken');
 const dotenv = require('dotenv');
+const WebSocket = require('ws');
 
 // Load environment variables from .env file
 dotenv.config();
@@ -42,6 +43,72 @@ const user = {
     username: process.env.ADMIN_USERNAME,
     password: process.env.ADMIN_PASSWORD,
   };
+
+const wss = new WebSocket.Server({ noServer: true });
+
+// Map to store client subscriptions
+const subscriptions = new Map();
+
+// Handle WebSocket connections
+wss.on('connection', (ws) => {
+  console.log('New WebSocket connection established');
+
+  ws.on('message', (message) => {
+    try {
+      const parsedMessage = JSON.parse(message);
+
+      if (parsedMessage.type === 'subscribe') {
+        // Client wants to subscribe to a collection
+        const collectionName = parsedMessage.collection;
+        if (!subscriptions.has(collectionName)) {
+          subscriptions.set(collectionName, new Set());
+        }
+        subscriptions.get(collectionName).add(ws);
+        console.log(`Client subscribed to ${collectionName}`);
+      }
+      
+      if (parsedMessage.type === 'unsubscribe') {
+        // Client wants to unsubscribe from a collection
+        const collectionName = parsedMessage.collection;
+        if (subscriptions.has(collectionName)) {
+          subscriptions.get(collectionName).delete(ws);
+          if (subscriptions.get(collectionName).size === 0) {
+            subscriptions.delete(collectionName);
+          }
+        }
+        console.log(`Client unsubscribed from ${collectionName}`);
+      }
+
+    } catch (error) {
+      console.error('Error processing WebSocket message:', error);
+    }
+  });
+
+  ws.on('close', () => {
+    console.log('WebSocket connection closed');
+    // Remove the client from all subscriptions on close
+    subscriptions.forEach((clients, collectionName) => {
+      clients.delete(ws);
+      if (clients.size === 0) {
+        subscriptions.delete(collectionName);
+      }
+    });
+  });
+});
+
+// Optimized Broadcast function
+const broadcast = (collectionName, data) => {
+  const clients = subscriptions.get(collectionName);
+  console.log(`Broadcasting data to ${clients.size} clients for collection ${collectionName}`);
+  if (clients) {
+    clients.forEach(client => {
+      if (client.readyState === WebSocket.OPEN) {
+        client.send(JSON.stringify(data));
+        console.log('Data broadcasted:', data);
+      }
+    });
+  }
+};
 
 // Middleware to verify JWT
 const auth = (req, res, next) => {
@@ -103,6 +170,9 @@ app.post('/api/datapoints/:collection', auth, async (req, res) => {
   try {
     const result = await client.db(mongoDBName).collection(collectionName).insertOne(dataPoint);
     res.status(201).json({ msg: 'Data point inserted successfully', result });
+
+    // Broadcast the new data point to all subscribed clients
+    broadcast(collectionName, dataPoint);
   } catch (error) {
     console.error('Error inserting data point', error);
     res.status(500).json({ error: 'Error inserting data point' });
@@ -111,6 +181,12 @@ app.post('/api/datapoints/:collection', auth, async (req, res) => {
 
 
 // Start the server
-app.listen(port, () => {
+const server = app.listen(port, () => {
   console.log(`Server is running on http://localhost:${port}`);
+});
+
+server.on('upgrade', (request, socket, head) => {
+  wss.handleUpgrade(request, socket, head, socket => {
+    wss.emit('connection', socket, request);
+  });
 });

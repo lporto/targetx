@@ -2,13 +2,13 @@
 source ./api_utils.sh
 
 NETWORK_INTERFACE="rmnet0"
+#NETWORK_INTERFACE="wlp0s20f3"
 DESTINATION="8.8.8.8"
 
 # Function to run ping test and log results to MongoDB and console
 run_ping_test() {
-    clear
     echo "Running Ping Test..."
-    ping -I $NETWORK_INTERFACE -c 120 $DESTINATION | while IFS= read -r line; do
+    ping -I $NETWORK_INTERFACE $DESTINATION | while IFS= read -r line; do
         if echo "$line" | grep -q "time="; then
             # Extract the latency value
             latency=$(echo "$line" | grep -oP 'time=\K[0-9.]+')
