@@ -9,27 +9,31 @@ const DataDashboard = () => {
   const [collections, setCollections] = useState([]);
   const [selectedCollection, setSelectedCollection] = useState('sparta0');
   const [dataPoints, setDataPoints] = useState([]);
+  const [loading, setLoading] = useState(false); // Track loading state
   const [error, setError] = useState('');
   const wsRef = useRef(null); // To keep a reference to the WebSocket connection
 
-  useEffect(() => {
-    const fetchCollections = async () => {
-      try {
-        const token = localStorage.getItem('token');
-        const response = await axios.get('/api/collections', {
-          headers: {
-            'Authorization': `Bearer ${token}`
-          }
-        });
-        setCollections(response.data);
-      } catch (error) {
-        console.error('Error fetching collections', error);
-      }
-    };
+  // Function to fetch collections
+  const fetchCollections = async () => {
+    setLoading(true); // Set loading state to true
+    try {
+      const token = localStorage.getItem('token');
+      const response = await axios.get('/api/collections', {
+        headers: {
+          'Authorization': `Bearer ${token}`
+        }
+      });
+      setCollections(response.data);
+    } catch (error) {
+      console.error('Error fetching collections', error);
+    } finally {
+      setLoading(false); // Reset loading state to false after request completes
+    }
+  };
 
+  useEffect(() => {
     fetchCollections();
   }, []);
-
 
   useEffect(() => {
     const fetchDataPoints = async () => {
@@ -60,9 +64,7 @@ const DataDashboard = () => {
     ws.onmessage = (event) => {
       console.log('WebSocket message received:', event.data);
       const newDataPoint = JSON.parse(event.data);
-      //if (newDataPoint.collection === selectedCollection) {
-        setDataPoints((prevDataPoints) => [...prevDataPoints, newDataPoint]);
-      //}
+      setDataPoints((prevDataPoints) => [...prevDataPoints, newDataPoint]);
     };
 
     ws.onclose = () => {
@@ -70,10 +72,15 @@ const DataDashboard = () => {
     };
 
     return () => {
-      if (wsRef.current) {
+      if (wsRef.current && wsRef.current.readyState === WebSocket.OPEN) {
         // Unsubscribe from the collection before unmounting or changing collection
         wsRef.current.send(JSON.stringify({ type: 'unsubscribe', collection: selectedCollection }));
         wsRef.current.close();
+      } else if (wsRef.current) {
+        wsRef.current.onopen = () => {
+          wsRef.current.send(JSON.stringify({ type: 'unsubscribe', collection: selectedCollection }));
+          wsRef.current.close();
+        };
       }
     };
   }, [selectedCollection]);
@@ -85,7 +92,21 @@ const DataDashboard = () => {
   return (
     <div className="dashboard">
       <div className="sidebar">
-        <h3>Collections</h3>
+        <h3>
+          Collections
+          <span
+            onClick={!loading ? fetchCollections : null} // Disable click if loading
+            style={{
+              marginLeft: '10px',
+              cursor: loading ? 'not-allowed' : 'pointer',
+              opacity: loading ? 0.7 : 1, // Slightly dim during loading
+            }}
+            className={loading ? 'loading-icon' : ''}
+            title={loading ? "Refreshing..." : "Refresh Collections"}
+          >
+            ⟳
+          </span>
+        </h3>
         <ul>
           {collections.map(collection => (
             <li

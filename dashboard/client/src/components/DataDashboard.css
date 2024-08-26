@@ -92,3 +92,17 @@ th {
 .main h2 {
   margin-bottom: 20px;
 }
+
+@keyframes spin {
+  from {
+    transform: rotate(0deg);
+  }
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+.loading-icon {
+  display: inline-block;
+  animation: spin 1s linear infinite; /* Spin animation */
+}

@@ -47,7 +47,7 @@ const TimelineChart = ({ dataPoints }) => {
         yAxisID: 'y-axis-latency'
       },
       {
-        label: 'Radio Tech',
+        label: 'Network Mode Switch Event',
         data: radioTechData.map(dp => ({
           x: new Date(dp.timestamp / 1e6),
           y: 0,  // Position all radio tech events on the same line
@@ -76,7 +76,7 @@ const TimelineChart = ({ dataPoints }) => {
       tooltip: {
         callbacks: {
           label: function (context) {
-            if (context.dataset.label === 'Radio Tech') {
+            if (context.dataset.label === 'Network Mode Switch Event') {
               return `Radio Tech: ${context.raw.label}`;
             }
             return `${context.dataset.label}: ${context.raw.y}`;

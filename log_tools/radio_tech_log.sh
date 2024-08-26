@@ -3,6 +3,7 @@ source ./api_utils.sh
 
 # Function to monitor data radio technology changes and log results to MongoDB and console
 monitor_radio_tech() {
+	clear
     echo "Monitoring data radio technology changes..."
     logcat -c  # Clear the logcat buffer
     logcat -v time -T 1 -b radio | while IFS= read -r line; do

@@ -7,6 +7,7 @@ DESTINATION="8.8.8.8"
 
 # Function to run ping test and log results to MongoDB and console
 run_ping_test() {
+    clear
     echo "Running Ping Test..."
     ping -I $NETWORK_INTERFACE $DESTINATION | while IFS= read -r line; do
         if echo "$line" | grep -q "time="; then

@@ -3,6 +3,7 @@ source ./api_utils.sh
 
 # Function to monitor 4G network state changes using adb logcat with radio logs
 monitor_radio_state() {
+    clear
     echo "Monitoring radio state..."
     logcat -c  # Clear the logcat buffer
     # Initialize the connection state assuming its connected

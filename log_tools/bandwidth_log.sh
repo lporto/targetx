@@ -12,6 +12,7 @@ RECONNECT_DELAY=5                   # Delay before attempting to reconnect (seco
 
 # Function to run iperf3 test with automatic reconnection and log results to MongoDB and console
 run_iperf3_test() {
+    clear
     echo "Running iperf3 Test..."
     while true; do
         echo "Starting iperf3 client..."
