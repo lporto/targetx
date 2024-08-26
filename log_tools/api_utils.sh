@@ -13,7 +13,7 @@ load_env() {
 # Function to obtain JWT Token
 get_jwt_token() {
     local login_url="$API_URL/api/login"
-    response=$(curl -s -X POST $login_url \
+    response=$(curl -k -s -X POST $login_url \
     -H "Content-Type: application/json" \
     -d "{\"username\": \"$USERNAME\", \"password\": \"$PASSWORD\"}")
 
@@ -39,7 +39,7 @@ log_data() {
     local data="$1"
     local api_url="$API_URL/api/datapoints/$COLLECTION"
 
-    response=$(curl -s -X POST $api_url \
+    response=$(curl -k -s -X POST $api_url \
     -H "Authorization: Bearer $jwt_token" \
     -H "Content-Type: application/json" \
     -d "$data")
