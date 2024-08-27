@@ -6,6 +6,11 @@ import Login from './components/Login';
 const App = () => {
   const [token, setToken] = useState(localStorage.getItem('token'));
 
+  const handleLogout = () => {
+    localStorage.removeItem('token');
+    setToken(null);
+  };
+
   if (!token) {
     return <Login setToken={setToken} />;
   }
@@ -13,7 +18,7 @@ const App = () => {
   return (
     <div className="App">
       <main>
-        <DataDashboard />
+        <DataDashboard  onLogout={handleLogout} />
       </main>
     </div>
   );

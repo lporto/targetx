@@ -5,7 +5,7 @@ import { getDataPoints } from '../services/dataService';
 import TimelineChart from './TimelineChart';
 import './DataDashboard.css';
 
-const DataDashboard = () => {
+const DataDashboard = ({ onLogout }) => {
   const [collections, setCollections] = useState([]);
   const [selectedCollection, setSelectedCollection] = useState('sparta0');
   const [dataPoints, setDataPoints] = useState([]);
@@ -118,6 +118,7 @@ const DataDashboard = () => {
             </li>
           ))}
         </ul>
+        <button onClick={onLogout} className="logout-button">Logout</button>
       </div>
       <div className="main">
         <h2>Dashboard - {selectedCollection}</h2>

@@ -106,3 +106,18 @@ th {
   display: inline-block;
   animation: spin 1s linear infinite; /* Spin animation */
 }
+
+.logout-button {
+  margin-top: 20px;
+  padding: 10px 20px;
+  background-color: #f44336;
+  color: white;
+  border: none;
+  border-radius: 5px;
+  cursor: pointer;
+  width: 100%;
+}
+
+.logout-button:hover {
+  background-color: #d32f2f;
+}
