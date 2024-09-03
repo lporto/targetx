@@ -42,7 +42,7 @@ const DataDashboard = ({ onLogout }) => {
         setDataPoints(data);
       } catch (err) {
         setError('Failed to fetch data');
-        handleLogout();
+        onLogout();
       }
     };
 
